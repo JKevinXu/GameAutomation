@@ -8,21 +8,19 @@ import pyautogui
 import time
 import sys
 
+# Import shared configuration
+from config import PLAY_BUTTONS, PYAUTOGUI_SETTINGS, TIMING, MARKER_SETTINGS
+
 def click_play_button(emulator_number=1, show_marker=True):
     """
     Click play button for specific emulator using known coordinates
     """
-    # Coordinates found from manual coordinate detection
-    play_buttons = {
-        1: (576, 275),    # First emulator - "我的安卓"
-    }
-    
-    if emulator_number not in play_buttons:
+    if emulator_number not in PLAY_BUTTONS:
         print(f"❌ Invalid emulator number: {emulator_number}")
         print("Available emulators: 1, 2, 3")
         return False
     
-    x, y = play_buttons[emulator_number]
+    x, y = PLAY_BUTTONS[emulator_number]
     
     print(f"🎯 Clicking emulator #{emulator_number} play button at ({x}, {y})")
     
@@ -30,21 +28,22 @@ def click_play_button(emulator_number=1, show_marker=True):
         if show_marker:
             # Show visual marker by moving mouse to position first
             print("🎯 Moving mouse to target position...")
-            pyautogui.moveTo(x, y, duration=0.5)  # Smooth movement to show position
+            pyautogui.moveTo(x, y, duration=MARKER_SETTINGS['MOVEMENT_DURATION'])
             time.sleep(0.5)  # Brief pause to see the position
             
             # Move mouse in a small circle to make it more visible
             print("📍 Marking position with visual indicator...")
+            marker_size = MARKER_SETTINGS['MARKER_SIZE']
             for i in range(3):
-                pyautogui.moveRel(8, 0, duration=0.1)
-                pyautogui.moveRel(0, 8, duration=0.1)
-                pyautogui.moveRel(-8, 0, duration=0.1)
-                pyautogui.moveRel(0, -8, duration=0.1)
+                pyautogui.moveRel(marker_size, 0, duration=0.1)
+                pyautogui.moveRel(0, marker_size, duration=0.1)
+                pyautogui.moveRel(-marker_size, 0, duration=0.1)
+                pyautogui.moveRel(0, -marker_size, duration=0.1)
             
             # Return to center and countdown
             pyautogui.moveTo(x, y, duration=0.2)
             print("⏰ Clicking in:")
-            for i in range(3, 0, -1):
+            for i in range(MARKER_SETTINGS['COUNTDOWN_STEPS'], 0, -1):
                 print(f"   {i}...")
                 time.sleep(0.5)
         
@@ -53,7 +52,7 @@ def click_play_button(emulator_number=1, show_marker=True):
         pyautogui.click(x, y)
         print("✅ Click successful!")
         print("⏳ Waiting for emulator to start...")
-        time.sleep(3)
+        time.sleep(TIMING['EMULATOR_BOOT_WAIT'])
         return True
         
     except Exception as e:
@@ -65,8 +64,8 @@ def main():
     print("=" * 40)
     
     # Configure PyAutoGUI
-    pyautogui.FAILSAFE = True  # Move mouse to corner to stop
-    pyautogui.PAUSE = 0.5
+    pyautogui.FAILSAFE = PYAUTOGUI_SETTINGS['FAILSAFE']
+    pyautogui.PAUSE = PYAUTOGUI_SETTINGS['PAUSE']
     
     # Get emulator number from command line or default to 1
     emulator_num = 1

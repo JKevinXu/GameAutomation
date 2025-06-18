@@ -11,6 +11,9 @@ import time
 import os
 from pathlib import Path
 
+# Import shared configuration
+from config import PLAY_BUTTONS, PYAUTOGUI_SETTINGS, MUMU_PATHS, TIMING
+
 # Import automation libraries
 try:
     import pyautogui
@@ -25,8 +28,8 @@ class GameAutomation:
         
         # Configure PyAutoGUI settings
         if AUTOMATION_AVAILABLE:
-            pyautogui.FAILSAFE = True  # Move mouse to top-left corner to stop
-            pyautogui.PAUSE = 0.5      # Small pause between actions
+            pyautogui.FAILSAFE = PYAUTOGUI_SETTINGS['FAILSAFE']
+            pyautogui.PAUSE = PYAUTOGUI_SETTINGS['PAUSE']
         
     def log(self, message):
         """Print message if verbose mode is enabled"""
@@ -35,11 +38,7 @@ class GameAutomation:
         
     def find_mumu_path(self):
         """Find MuMu模拟器Pro installation path on Mac"""
-        common_paths = [
-            "/Applications/MuMuPlayer.app"
-        ]
-        
-        for path in common_paths:
+        for path in MUMU_PATHS:
             if os.path.exists(path):
                 return path
         
@@ -59,7 +58,7 @@ class GameAutomation:
             
             # Wait for the emulator to start
             print("⏳ Waiting for emulator interface to load...")
-            time.sleep(3)  # Increased wait time for interface to fully load
+            time.sleep(TIMING['MUMU_STARTUP_WAIT'])
             return True
             
         except subprocess.CalledProcessError as e:
@@ -70,12 +69,8 @@ class GameAutomation:
         """
         Get play button coordinates for specific emulator using known positions
         """
-        play_buttons = {
-            1: (576, 275),    # First emulator - "我的安卓"
-        }
-        
-        if emulator_index in play_buttons:
-            return play_buttons[emulator_index]
+        if emulator_index in PLAY_BUTTONS:
+            return PLAY_BUTTONS[emulator_index]
         else:
             return None
     
@@ -105,7 +100,7 @@ class GameAutomation:
             
             print("✅ Play button clicked successfully!")
             print("⏳ Waiting for emulator to start...")
-            time.sleep(5)  # Wait for emulator to boot
+            time.sleep(TIMING['EMULATOR_BOOT_WAIT'])
             
             return True
             
