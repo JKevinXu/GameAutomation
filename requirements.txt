@@ -1,0 +1,11 @@
+# Basic dependencies for gameplay automation
+pyautogui>=0.9.54
+opencv-python>=4.8.0
+Pillow>=10.0.0
+numpy>=1.24.0
+
+# Optional dependencies (uncomment as needed):
+# adb-shell>=0.4.3  # For Android device automation via ADB
+# pytesseract>=0.3.10  # For OCR text recognition
+# keyboard>=0.13.5  # For advanced keyboard automation
+# mouse>=0.7.1  # For advanced mouse automation 
