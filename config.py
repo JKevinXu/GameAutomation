@@ -8,6 +8,10 @@ Contains all emulator coordinates and automation settings
 COORDINATES = {
     'play_button': (110, 150),      # Main play button
     'start_game': (836, 159),       # Game start button
+    'login_button': (974, 403),     # Login button
+    'shi_men_task': (1286, 211),    # shi men task button
+    'any_place': (1286, 211),       # any place
+    'shi_men_task_go_finish': (1041, 348),    # shi men task go finish button
 }
 
 # Action plans for different automation sequences
@@ -17,7 +21,14 @@ ACTION_PLANS = {
         {'action': 'click', 'coordinate': 'play_button', 'description': 'Click emulator play button'},
         {'action': 'wait', 'duration': 10, 'description': 'Wait for emulator to boot'},
         {'action': 'click', 'coordinate': 'start_game', 'description': 'Click game start button'},
+        {'action': 'wait', 'duration': 5, 'description': 'Wait for game to load'},
+        {'action': 'click', 'coordinate': 'any_place', 'description': 'Click any place'},
+        {'action': 'wait', 'duration': 5, 'description': 'Wait for game to load'},
+        {'action': 'click', 'coordinate': 'login_button', 'description': 'Click log in button'},
+        {'action': 'wait', 'duration': 8, 'description': 'Wait for login to complete'},
+        {'action': 'click', 'coordinate': 'shi_men_task', 'description': 'Click shi men task button'},
         {'action': 'wait', 'duration': 3, 'description': 'Wait for game to load'},
+        {'action': 'click', 'coordinate': 'shi_men_task_go_finish', 'description': 'Click shi men task go finish button'},
     ],
 }
 
