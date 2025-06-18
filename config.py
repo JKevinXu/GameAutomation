@@ -4,9 +4,26 @@ Shared Configuration for Game Automation
 Contains all emulator coordinates and automation settings
 """
 
-# Emulator play button coordinates
+# Named coordinates for easy reference
+COORDINATES = {
+    'play_button': (110, 150),      # Main play button
+    'start_game': (836, 159),       # Game start button
+}
+
+# Action plans for different automation sequences
+ACTION_PLANS = {
+    '师门任务': [
+        {'action': 'open_app', 'app': 'mumu', 'description': 'Open MuMu emulator'},
+        {'action': 'click', 'coordinate': 'play_button', 'description': 'Click emulator play button'},
+        {'action': 'wait', 'duration': 10, 'description': 'Wait for emulator to boot'},
+        {'action': 'click', 'coordinate': 'start_game', 'description': 'Click game start button'},
+        {'action': 'wait', 'duration': 3, 'description': 'Wait for game to load'},
+    ],
+}
+
+# Legacy support - keeping for backward compatibility
 PLAY_BUTTONS = {
-    1: (110, 150),    # First emulator - "我的安卓"
+    1: COORDINATES['play_button'],    # First emulator - "我的安卓"
 }
 
 # PyAutoGUI settings
@@ -16,9 +33,16 @@ PYAUTOGUI_SETTINGS = {
 }
 
 # Application paths
-MUMU_PATHS = [
-    "/Applications/MuMuPlayer.app"
-]
+APPLICATION_PATHS = {
+    'mumu': "/Applications/MuMuPlayer.app",
+    'chrome': "/Applications/Google Chrome.app",
+    'safari': "/Applications/Safari.app",
+    'finder': "/System/Library/CoreServices/Finder.app",
+    'calculator': "/Applications/Calculator.app",
+}
+
+# Legacy support
+MUMU_PATHS = [APPLICATION_PATHS['mumu']]
 
 # Timing settings
 TIMING = {
