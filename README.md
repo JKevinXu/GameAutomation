@@ -2,6 +2,35 @@
 
 A command-line tool for automating gameplay in MuMu模拟器Pro on macOS.
 
+## Demo Video
+
+🎥 **See the Game Automation Tool in Action**
+
+🔗 **[Watch Demo Video on Bilibili](https://www.bilibili.com/video/BV1YTNszpEs3)**
+
+*点击观看演示视频 - Click to watch the demo video on Bilibili*
+
+<!-- Alternative: Direct Bilibili embed (if supported) -->
+<!--
+<iframe src="//player.bilibili.com/player.html?bvid=BV1YTNszpEs3&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" width="600" height="400"> </iframe>
+-->
+
+<!-- Alternative: If you have a GIF demo -->
+<!--
+![Demo GIF](path/to/your/demo.gif)
+-->
+
+<!-- Alternative: If you have a local video file -->
+<!--
+https://user-images.githubusercontent.com/USERNAME/VIDEO_ID-hash.mp4
+-->
+
+**What the demo shows:**
+- Opening MuMu模拟器Pro automatically
+- Executing action plans with clicks and waits
+- Command-line interface and verbose output
+- Available automation features
+
 ## Setup
 
 1. Install Python dependencies:
