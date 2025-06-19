@@ -6,12 +6,11 @@ A command-line tool for automating gameplay in MuMu模拟器Pro on macOS.
 
 🎥 **See the Game Automation Tool in Action**
 
-<iframe src="//player.bilibili.com/player.html?bvid=BV1YTNszpEs3&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" width="600" height="400"> </iframe>
+https://github.com/JKevinXu/GameAutomation/assets/USERID/game_automation_demo.mp4
 
-*直接在页面观看演示视频 - Watch the demo video directly on the page*
+*梦幻西游师门自动化演示 - Dream Journey to the West Automation Demo*
 
-<!-- Backup link if embed doesn't work -->
-🔗 **[Open in Bilibili](https://www.bilibili.com/video/BV1YTNszpEs3)** *(if video doesn't load above)*
+🔗 **[📺 Watch on Bilibili](https://www.bilibili.com/video/BV1YTNszpEs3)** | **[⬇️ Download Video](./game_automation_demo.mp4)**
 
 <!-- Alternative: If you have a GIF demo -->
 <!--
