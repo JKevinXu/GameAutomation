@@ -12,6 +12,7 @@ COORDINATES = {
     'shi_men_task': (1286, 211),    # shi men task button
     'any_place': (1286, 211),       # any place
     'shi_men_task_go_finish': (1041, 348),    # shi men task go finish button
+    'dialogue_button': 'game_elements/dialogue_icon.png',  # Dialogue button (PNG template)
 }
 
 # Action plans for different automation sequences
@@ -29,6 +30,9 @@ ACTION_PLANS = {
         {'action': 'click', 'coordinate': 'shi_men_task', 'description': 'Click shi men task button'},
         {'action': 'wait', 'duration': 3, 'description': 'Wait for game to load'},
         {'action': 'click', 'coordinate': 'shi_men_task_go_finish', 'description': 'Click shi men task go finish button'},
+    ],
+    '320': [
+        {'action': 'click', 'coordinate': 'dialogue_button', 'confidence': 0.8, 'description': 'Click dialogue button using template matching'},
     ],
 }
 

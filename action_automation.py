@@ -20,6 +20,13 @@ try:
 except ImportError:
     AUTOMATION_AVAILABLE = False
 
+# Import coordinate detection functions
+try:
+    from find_coordinates import find_icon_coordinates_scaled
+    ICON_DETECTION_AVAILABLE = True
+except ImportError:
+    ICON_DETECTION_AVAILABLE = False
+
 class ActionAutomation:
     def __init__(self, verbose=False):
         self.mumu_path = self.find_mumu_path()
@@ -72,6 +79,7 @@ class ActionAutomation:
         
         if action_type == 'click':
             return self.execute_click_action(action)
+
         elif action_type == 'wait':
             return self.execute_wait_action(action)
         elif action_type == 'open_app':
@@ -91,11 +99,44 @@ class ActionAutomation:
         
         coordinate_name = action.get('coordinate')
         if isinstance(coordinate_name, str):
-            # Named coordinate
-            if coordinate_name not in COORDINATES:
+            # Check if it's a named coordinate
+            if coordinate_name in COORDINATES:
+                coord_value = COORDINATES[coordinate_name]
+                
+                # Check if coordinate value is a PNG template path
+                if isinstance(coord_value, str) and coord_value.endswith('.png'):
+                    # Use PNG template matching to get coordinates
+                    if not ICON_DETECTION_AVAILABLE:
+                        print("❌ Cannot use icon detection - find_coordinates module not available")
+                        return False
+                    
+                    confidence = action.get('confidence', 0.8)
+                    
+                    try:
+                        print(f"🔍 Detecting coordinates for icon: {coord_value}")
+                        print(f"🎯 Confidence threshold: {confidence}")
+                        
+                        coords = find_icon_coordinates_scaled(
+                            template_path=coord_value,
+                            confidence=confidence
+                        )
+                        
+                        if coords:
+                            x, y = coords
+                            print(f"✅ Icon detected at coordinates: ({x}, {y})")
+                        else:
+                            print("❌ Failed to detect icon coordinates")
+                            return False
+                            
+                    except Exception as e:
+                        print(f"❌ Icon detection failed: {e}")
+                        return False
+                else:
+                    # Regular coordinate tuple
+                    x, y = coord_value
+            else:
                 print(f"❌ Unknown coordinate name: {coordinate_name}")
                 return False
-            x, y = COORDINATES[coordinate_name]
         elif isinstance(coordinate_name, (list, tuple)) and len(coordinate_name) == 2:
             # Direct coordinate tuple
             x, y = coordinate_name
@@ -114,6 +155,7 @@ class ActionAutomation:
             print(f"❌ Click failed: {e}")
             return False
     
+
     def execute_wait_action(self, action):
         """Execute a wait action"""
         duration = action.get('duration', 1)
@@ -206,6 +248,7 @@ class ActionAutomation:
                 if action_type == 'click':
                     coord = action.get('coordinate', 'unknown')
                     print(f"   {i}. Click {coord} - {description}")
+
                 elif action_type == 'wait':
                     duration = action.get('duration', 'unknown')
                     print(f"   {i}. Wait {duration}s - {description}")
