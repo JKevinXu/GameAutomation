@@ -11,7 +11,7 @@ COORDINATES = {
     'login_button': (974, 403),     # Login button
     'shi_men_task': (1286, 211),    # shi men task button
     'any_place': (1286, 211),       # any place
-    'shi_men_task_go_finish': (1041, 348),    # shi men task go finish button
+    'shi_men_task_go_finish': 'game_elements/go_finish_shimen_icon.png',    # shi men task go finish button (PNG template)
     'dialogue_button': 'game_elements/dialogue_icon.png',  # Dialogue button (PNG template)
 }
 
@@ -29,7 +29,7 @@ ACTION_PLANS = {
         {'action': 'wait', 'duration': 8, 'description': 'Wait for login to complete'},
         {'action': 'click', 'coordinate': 'shi_men_task', 'description': 'Click shi men task button'},
         {'action': 'wait', 'duration': 3, 'description': 'Wait for game to load'},
-        {'action': 'click', 'coordinate': 'shi_men_task_go_finish', 'description': 'Click shi men task go finish button'},
+        {'action': 'click', 'coordinate': 'shi_men_task_go_finish', 'confidence': 0.8, 'description': 'Click shi men task go finish button'},
     ],
     '320': [
         {'action': 'click', 'coordinate': 'dialogue_button', 'confidence': 0.8, 'description': 'Click dialogue button using template matching'},
