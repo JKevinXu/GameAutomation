@@ -396,28 +396,47 @@ class ActionAutomation:
         
         return self.execute_avatar_keyword_click_action(action)
     
-    def execute_action_plan(self, plan_name):
-        """Execute a complete action plan"""
+    def execute_action_plan(self, plan_name, parameters=None):
+        """Execute a complete action plan with optional parameter substitution"""
         if plan_name not in ACTION_PLANS:
             print(f"❌ Unknown action plan: {plan_name}")
             print(f"Available plans: {', '.join(ACTION_PLANS.keys())}")
             return False
-        
+
         action_plan = ACTION_PLANS[plan_name]
-        
+        parameters = parameters or {}
+
+        # Make a copy of the action plan and substitute parameters
+        substituted_plan = []
+        for action in action_plan:
+            substituted_action = {}
+            for key, value in action.items():
+                if isinstance(value, str):
+                    # Substitute parameters in string values
+                    substituted_value = value
+                    for param_key, param_value in parameters.items():
+                        placeholder = f'{{{param_key}}}'
+                        substituted_value = substituted_value.replace(placeholder, str(param_value))
+                    substituted_action[key] = substituted_value
+                else:
+                    substituted_action[key] = value
+            substituted_plan.append(substituted_action)
+
         print("🎮 Starting Action-Based Game Automation")
         print("=" * 50)
         print(f"📋 Executing plan: '{plan_name}'")
-        print(f"📊 Total actions: {len(action_plan)}")
+        if parameters:
+            print(f"🔧 Parameters: {parameters}")
+        print(f"📊 Total actions: {len(substituted_plan)}")
         print("-" * 50)
-        
-        for i, action in enumerate(action_plan, 1):
-            print(f"\n🔄 Step {i}/{len(action_plan)}:")
-            
+
+        for i, action in enumerate(substituted_plan, 1):
+            print(f"\n🔄 Step {i}/{len(substituted_plan)}:")
+
             if not self.execute_action(action):
                 print(f"❌ Failed at step {i}. Stopping execution.")
                 return False
-        
+
         print("\n" + "=" * 50)
         print("🎉 Action plan completed successfully!")
         return True
@@ -469,6 +488,8 @@ def main():
                        help="Only open MuMu模拟器Pro without running automation")
     parser.add_argument("--find-keyword", type=str,
                        help="Find avatar coordinates for specified keyword without clicking")
+    parser.add_argument("--keyword", type=str,
+                       help="Keyword to use with the activity action plan")
     
     args = parser.parse_args()
     
@@ -498,14 +519,30 @@ def main():
         else:
             print("❌ No avatar found with the specified keyword")
     elif args.plan:
-        automation.execute_action_plan(args.plan)
+        # Check if we need to pass parameters to the action plan
+        if args.keyword and args.plan == 'activity':
+            # Execute the activity plan with the specified keyword
+            parameters = {'keyword': args.keyword}
+            automation.execute_action_plan(args.plan, parameters)
+        elif args.keyword and args.plan != 'activity':
+            # User specified a keyword but not the activity plan
+            print(f"⚠️  Keyword '{args.keyword}' specified but plan '{args.plan}' may not support it.")
+            print("💡 Use 'activity' plan for dynamic keywords.")
+            print("🔄 Executing plan anyway...")
+            automation.execute_action_plan(args.plan)
+        else:
+            # No keyword parameter, execute plan normally
+            automation.execute_action_plan(args.plan)
     else:
         print("❌ No action plan specified!")
         print("\n📋 Usage examples:")
-        print("   python action_automation.py basic_start")
+        print("   python action_automation.py 师门任务")
+        print("   python action_automation.py activity --keyword 320")
+        print("   python action_automation.py activity --keyword 章鱼王")
         print("   python action_automation.py --list-plans")
         print("   python action_automation.py --list-coords")
         print("   python action_automation.py --find-keyword 320")
+        print("\n💡 The activity plan allows you to specify any keyword dynamically!")
 
 if __name__ == "__main__":
     main() 
