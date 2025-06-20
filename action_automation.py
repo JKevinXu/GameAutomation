@@ -115,7 +115,7 @@ class ActionAutomation:
                 - 'avatar_templates': List of avatar template paths (optional, defaults to all available)
                 - 'confidence': Avatar detection confidence threshold (optional, default 0.8)
                 - 'return_coordinates': If True, returns coordinates instead of clicking (optional, default False)
-                - 'max_scroll_attempts': Maximum number of scroll attempts (optional, default 3)
+                - 'max_scroll_attempts': Maximum number of scroll attempts (optional, default 6)
         
         Returns:
             bool or dict: True/False for success/failure, or coordinates dict if return_coordinates=True
@@ -149,7 +149,7 @@ class ActionAutomation:
         
         confidence = action.get('confidence', 0.8)
         return_coordinates = action.get('return_coordinates', False)
-        max_scroll_attempts = action.get('max_scroll_attempts', 3)
+        max_scroll_attempts = action.get('max_scroll_attempts', 6)
         current_scroll_attempt = action.get('_current_scroll_attempt', 0)
         
         try:

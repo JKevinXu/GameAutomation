@@ -13,6 +13,7 @@ COORDINATES = {
     'any_place': (1286, 211),       # any place
     'shi_men_task_go_finish': 'game_elements/go_finish_shimen_icon.png',    # shi men task go finish button (PNG template)
     'dialogue_button': 'game_elements/dialogue_icon.png',  # Dialogue button (PNG template)
+    'join_team': 'game_elements/join_team.png',  # Join team button (PNG template)
 }
 
 # Action plans for different automation sequences
@@ -33,7 +34,10 @@ ACTION_PLANS = {
     ],
     'activity': [
         {'action': 'click', 'coordinate': 'dialogue_button', 'confidence': 0.7, 'description': 'Click dialogue button using template matching'},
-        {'action': 'avatar_keyword_click', 'keywords': '{keyword}', 'confidence': 0.8, 'description': 'Find and click avatar for {keyword} messages'}
+        {'action': 'avatar_keyword_click', 'keywords': '{keyword}', 'confidence': 0.8, 'description': 'Find and click avatar for {keyword} messages'},
+        {'action': 'click', 'coordinate': 'join_team', 'confidence': 0.8, 'description': 'Click join team button using template matching'},
+        {'action': 'click', 'coordinate': 'join_team', 'confidence': 0.8, 'description': 'Click join team button using template matching'},
+        {'action': 'click', 'coordinate': 'join_team', 'confidence': 0.8, 'description': 'Click join team button using template matching'}
     ],
     # Legacy support - kept for backward compatibility 
     '320': [
