@@ -197,15 +197,30 @@ class ActionAutomation:
                     if keyword_result.get('explanation'):
                         print(f"   Explanation: {keyword_result['explanation']}")
                     
-                    # Convert physical coordinates back to logical coordinates
-                    logical_x = click_coords['x'] // 2  # Divide by scale factor
-                    logical_y = click_coords['y'] // 2
+                    # Convert chat-relative coordinates to full-screen coordinates
+                    # The click_coords are relative to the chat area, need to add chat area offset
+                    from avatar_message_block_detection import CHAT_AREA, SCALE_FACTOR
+                    chat_x1, chat_y1, _, _ = CHAT_AREA
+                    
+                    # Chat-relative coordinates (physical coordinates within chat area)
+                    chat_relative_x = click_coords['x']
+                    chat_relative_y = click_coords['y']
+                    
+                    # Convert to full-screen physical coordinates
+                    physical_x = (chat_x1 * SCALE_FACTOR) + chat_relative_x
+                    physical_y = (chat_y1 * SCALE_FACTOR) + chat_relative_y
+                    
+                    # Convert to logical coordinates for clicking
+                    logical_x = physical_x // SCALE_FACTOR
+                    logical_y = physical_y // SCALE_FACTOR
                     
                     coordinates_result = {
                         'x': logical_x,
                         'y': logical_y,
-                        'physical_x': click_coords['x'],
-                        'physical_y': click_coords['y'],
+                        'physical_x': physical_x,
+                        'physical_y': physical_y,
+                        'chat_relative_x': chat_relative_x,
+                        'chat_relative_y': chat_relative_y,
                         'avatar_info': {
                             'template': avatar['template_name'],
                             'confidence': avatar['confidence'],
@@ -214,14 +229,19 @@ class ActionAutomation:
                         'keyword_info': keyword_result
                     }
                     
+                    # Always click the avatar when keywords are found
+                    print(f"🖱️  Clicking avatar at full-screen logical coordinates ({logical_x}, {logical_y})")
+                    print(f"   (Chat-relative: {chat_relative_x}, {chat_relative_y})")
+                    pyautogui.click(logical_x, logical_y)
+                    print("✅ Avatar clicked successfully!")
+                    
                     if return_coordinates:
-                        print(f"📍 Returning coordinates: logical ({logical_x}, {logical_y}), physical ({click_coords['x']}, {click_coords['y']})")
+                        print(f"📍 Also returning coordinates:")
+                        print(f"   Chat-relative: ({chat_relative_x}, {chat_relative_y})")
+                        print(f"   Full-screen logical: ({logical_x}, {logical_y})")
+                        print(f"   Full-screen physical: ({physical_x}, {physical_y})")
                         return coordinates_result
                     else:
-                        # Click the avatar
-                        print(f"🖱️  Clicking avatar at logical coordinates ({logical_x}, {logical_y})")
-                        pyautogui.click(logical_x, logical_y)
-                        print("✅ Avatar clicked successfully!")
                         return True
                 else:
                     if is_related:

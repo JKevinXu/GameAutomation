@@ -81,6 +81,10 @@ def find_avatar_by_template(chat_image: np.ndarray, template_path: str,
     # Perform template matching
     result = cv2.matchTemplate(chat_image, template, cv2.TM_CCOEFF_NORMED)
     
+    # Find the best match confidence regardless of threshold
+    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
+    best_confidence = max_val
+    
     # Find all locations above threshold
     locations = np.where(result >= confidence)
     
@@ -102,7 +106,12 @@ def find_avatar_by_template(chat_image: np.ndarray, template_path: str,
         
         avatar_detections.append(avatar_detection)
     
-    print(f"✅ Found {len(avatar_detections)} instances of {os.path.basename(template_path)}")
+    # Always show the best confidence found, even if no matches above threshold
+    template_name = os.path.basename(template_path)
+    if len(avatar_detections) > 0:
+        print(f"✅ Found {len(avatar_detections)} instances of {template_name} (best: {best_confidence:.3f})")
+    else:
+        print(f"❌ Found 0 instances of {template_name} (best confidence: {best_confidence:.3f}, threshold: {confidence:.3f})")
     
     return avatar_detections
 

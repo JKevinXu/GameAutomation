@@ -33,12 +33,7 @@ ACTION_PLANS = {
     ],
     '320': [
         {'action': 'click', 'coordinate': 'dialogue_button', 'confidence': 0.8, 'description': 'Click dialogue button using template matching'},
-    ],
-    'auto_keyword_click': [
-        {'action': 'avatar_keyword_click', 'keywords': ['320', '章鱼王', '师门'], 'confidence': 0.8, 'description': 'Find and click avatar if message contains keywords'},
-    ],
-    'find_320_player': [
-        {'action': 'avatar_keyword_click', 'keywords': '320', 'confidence': 0.8, 'description': 'Find and click avatar for 320 recruitment messages'},
+        {'action': 'avatar_keyword_click', 'keywords': '320', 'confidence': 0.8, 'description': 'Find and click avatar for 320 recruitment messages'}
     ],
 }
 
