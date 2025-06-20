@@ -115,6 +115,7 @@ class ActionAutomation:
                 - 'avatar_templates': List of avatar template paths (optional, defaults to all available)
                 - 'confidence': Avatar detection confidence threshold (optional, default 0.8)
                 - 'return_coordinates': If True, returns coordinates instead of clicking (optional, default False)
+                - 'max_scroll_attempts': Maximum number of scroll attempts (optional, default 3)
         
         Returns:
             bool or dict: True/False for success/failure, or coordinates dict if return_coordinates=True
@@ -148,16 +149,23 @@ class ActionAutomation:
         
         confidence = action.get('confidence', 0.8)
         return_coordinates = action.get('return_coordinates', False)
+        max_scroll_attempts = action.get('max_scroll_attempts', 3)
+        current_scroll_attempt = action.get('_current_scroll_attempt', 0)
         
         try:
-            print(f"🔍 Searching for avatars with keywords: {keywords}")
-            print(f"🎯 Using {len(avatar_templates)} avatar templates")
+            if current_scroll_attempt == 0:
+                print(f"🔍 Searching for avatars with keywords: {keywords}")
+                print(f"🎯 Using {len(avatar_templates)} avatar templates")
+            else:
+                print(f"🔍 Search attempt {current_scroll_attempt + 1} after scrolling...")
             
             # Find avatars using template matching
             avatar_detections = find_avatars_with_templates(avatar_templates, confidence)
             
             if not avatar_detections:
                 print("❌ No avatars detected")
+                if current_scroll_attempt < max_scroll_attempts:
+                    return self._scroll_and_retry_keyword_search(action, current_scroll_attempt)
                 return False
             
             print(f"✅ Found {len(avatar_detections)} avatar(s)")
@@ -191,11 +199,28 @@ class ActionAutomation:
                 is_related = keyword_result.get('is_related', False) or keyword_result.get('is_related_to_any', False)
                 confidence_score = keyword_result.get('confidence', 0)
                 
+                # Debug output for keyword analysis
+                print(f"🔍 Keyword analysis result for avatar {i}:")
+                print(f"   is_related: {is_related}")
+                print(f"   confidence: {confidence_score}%")
+                print(f"   explanation: {keyword_result.get('explanation', 'No explanation')}")
+                if keyword_result.get('extracted_content'):
+                    print(f"   extracted_content: {keyword_result.get('extracted_content')}")
+                
                 if is_related and confidence_score >= 70:  # Require at least 70% confidence
                     print(f"✅ Keywords found in avatar {i} message block!")
                     print(f"   Confidence: {confidence_score}%")
                     if keyword_result.get('explanation'):
                         print(f"   Explanation: {keyword_result['explanation']}")
+                    
+                    # Double-check before clicking (safety measure)
+                    if not is_related:
+                        print(f"❌ SAFETY CHECK FAILED: is_related is False but reached click section!")
+                        continue
+                    
+                    if confidence_score < 70:
+                        print(f"❌ SAFETY CHECK FAILED: confidence {confidence_score}% is too low!")
+                        continue
                     
                     # Convert chat-relative coordinates to full-screen coordinates
                     # The click_coords are relative to the chat area, need to add chat area offset
@@ -229,6 +254,12 @@ class ActionAutomation:
                         'keyword_info': keyword_result
                     }
                     
+                    # Final safety check before clicking
+                    print(f"🎯 FINAL CHECK: About to click avatar {i}")
+                    print(f"   is_related: {is_related}")
+                    print(f"   confidence: {confidence_score}%")
+                    print(f"   Both conditions met: {is_related and confidence_score >= 70}")
+                    
                     # Always click the avatar when keywords are found
                     print(f"🖱️  Clicking avatar at full-screen logical coordinates ({logical_x}, {logical_y})")
                     print(f"   (Chat-relative: {chat_relative_x}, {chat_relative_y})")
@@ -243,17 +274,58 @@ class ActionAutomation:
                         return coordinates_result
                     else:
                         return True
+                elif is_related and confidence_score < 70:
+                    print(f"⚠️  Keywords found but confidence too low: {confidence_score}%")
+                    print(f"   Skipping avatar {i} - need at least 70% confidence")
                 else:
-                    if is_related:
-                        print(f"⚠️  Keywords found but confidence too low: {confidence_score}%")
-                    else:
-                        print(f"❌ Keywords not found in avatar {i}")
+                    print(f"❌ Keywords not found in avatar {i} (is_related={is_related})")
+                    print(f"   Skipping avatar {i} and continuing search")
             
+            # No avatars with matching keywords found
             print("❌ No avatars with matching keywords found")
+            if current_scroll_attempt < max_scroll_attempts:
+                return self._scroll_and_retry_keyword_search(action, current_scroll_attempt)
+            
+            print(f"❌ Exhausted all {max_scroll_attempts + 1} search attempts (including {max_scroll_attempts} scrolls)")
             return False
             
         except Exception as e:
             print(f"❌ Avatar keyword click action failed: {e}")
+            return False
+    
+    def _scroll_and_retry_keyword_search(self, action, current_scroll_attempt):
+        """Helper method to scroll down in chat area and retry keyword search"""
+        if not AUTOMATION_AVAILABLE:
+            print("❌ Cannot scroll - automation libraries not available")
+            return False
+        
+        # Get chat area for scrolling
+        from avatar_message_block_detection import CHAT_AREA
+        chat_x1, chat_y1, chat_x2, chat_y2 = CHAT_AREA
+        
+        # Calculate center of chat area for scrolling
+        scroll_x = (chat_x1 + chat_x2) // 2
+        scroll_y = (chat_y1 + chat_y2) // 2
+        
+        print(f"\n⬇️  No keywords found. Scrolling down in chat area (attempt {current_scroll_attempt + 1})")
+        print(f"   Scrolling at chat center: ({scroll_x}, {scroll_y})")
+        
+        try:
+            # Scroll down in the chat area (negative value scrolls down)
+            pyautogui.scroll(-3, x=scroll_x, y=scroll_y)
+            
+            # Wait a moment for the scroll to complete and content to load
+            time.sleep(1.5)
+            
+            # Create new action with incremented scroll attempt counter
+            retry_action = action.copy()
+            retry_action['_current_scroll_attempt'] = current_scroll_attempt + 1
+            
+            # Retry the search
+            return self.execute_avatar_keyword_click_action(retry_action)
+            
+        except Exception as e:
+            print(f"❌ Scroll operation failed: {e}")
             return False
     
     def execute_click_action(self, action):

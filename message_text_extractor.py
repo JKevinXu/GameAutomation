@@ -264,6 +264,22 @@ class MessageTextExtractor:
                     try:
                         # Parse JSON response
                         import json
+                        
+                        # Remove markdown code block formatting if present
+                        if response_text.startswith('```json'):
+                            # Find the start and end of the JSON content
+                            start_marker = '```json'
+                            end_marker = '```'
+                            start_index = response_text.find(start_marker) + len(start_marker)
+                            end_index = response_text.rfind(end_marker)
+                            if end_index > start_index:
+                                response_text = response_text[start_index:end_index].strip()
+                        elif response_text.startswith('```'):
+                            # Handle generic code block
+                            lines = response_text.split('\n')
+                            if len(lines) > 2:
+                                response_text = '\n'.join(lines[1:-1]).strip()
+                        
                         analysis = json.loads(response_text)
                         
                         return {
@@ -409,6 +425,22 @@ class MessageTextExtractor:
                     try:
                         # Parse JSON response
                         import json
+                        
+                        # Remove markdown code block formatting if present
+                        if response_text.startswith('```json'):
+                            # Find the start and end of the JSON content
+                            start_marker = '```json'
+                            end_marker = '```'
+                            start_index = response_text.find(start_marker) + len(start_marker)
+                            end_index = response_text.rfind(end_marker)
+                            if end_index > start_index:
+                                response_text = response_text[start_index:end_index].strip()
+                        elif response_text.startswith('```'):
+                            # Handle generic code block
+                            lines = response_text.split('\n')
+                            if len(lines) > 2:
+                                response_text = '\n'.join(lines[1:-1]).strip()
+                        
                         analysis = json.loads(response_text)
                         
                         return {

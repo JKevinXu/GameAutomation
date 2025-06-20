@@ -32,7 +32,7 @@ ACTION_PLANS = {
         {'action': 'click', 'coordinate': 'shi_men_task_go_finish', 'confidence': 0.8, 'description': 'Click shi men task go finish button'},
     ],
     'activity': [
-        {'action': 'click', 'coordinate': 'dialogue_button', 'confidence': 0.8, 'description': 'Click dialogue button using template matching'},
+        {'action': 'click', 'coordinate': 'dialogue_button', 'confidence': 0.7, 'description': 'Click dialogue button using template matching'},
         {'action': 'avatar_keyword_click', 'keywords': '{keyword}', 'confidence': 0.8, 'description': 'Find and click avatar for {keyword} messages'}
     ],
     # Legacy support - kept for backward compatibility 
