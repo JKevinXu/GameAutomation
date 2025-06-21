@@ -6,10 +6,10 @@ Contains all emulator coordinates and automation settings
 
 # Named coordinates for easy reference
 COORDINATES = {
-    'play_button': (110, 150),      # Main play button
-    'start_game': (836, 159),       # Game start button
-    'login_button': (974, 403),     # Login button
-    'shi_men_task': (1286, 211),    # shi men task button
+    'play_button': 'game_elements/play_button.png',      # Main play button (PNG template)
+    'start_game': 'game_elements/start_game.png',       # Game start button (PNG template)
+    'login_button': 'game_elements/login_button.png',     # Login button (PNG template)
+    'shi_men_task': 'game_elements/shimen_task_button.png',    # shi men task button (PNG template)
     'any_place': (1286, 211),       # any place
     'shi_men_task_go_finish': 'game_elements/go_finish_shimen_icon.png',    # shi men task go finish button (PNG template)
     'dialogue_button': 'game_elements/dialogue_icon.png',  # Dialogue button (PNG template)
@@ -26,7 +26,7 @@ ACTION_PLANS = {
         {'action': 'wait', 'duration': 5, 'description': 'Wait for game to load'},
         {'action': 'click', 'coordinate': 'any_place', 'description': 'Click any place'},
         {'action': 'wait', 'duration': 5, 'description': 'Wait for game to load'},
-        {'action': 'click', 'coordinate': 'login_button', 'description': 'Click log in button'},
+        {'action': 'click', 'coordinate': 'login_button', 'confidence': 0.7, 'description': 'Click log in button'},
         {'action': 'wait', 'duration': 8, 'description': 'Wait for login to complete'},
         {'action': 'click', 'coordinate': 'shi_men_task', 'description': 'Click shi men task button'},
         {'action': 'wait', 'duration': 3, 'description': 'Wait for game to load'},
