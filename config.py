@@ -57,11 +57,7 @@ PYAUTOGUI_SETTINGS = {
 
 # Application paths
 APPLICATION_PATHS = {
-    'mumu': "/Applications/MuMuPlayer.app",
-    'chrome': "/Applications/Google Chrome.app",
-    'safari': "/Applications/Safari.app",
-    'finder': "/System/Library/CoreServices/Finder.app",
-    'calculator': "/Applications/Calculator.app",
+    'mumu': "/Applications/MuMuPlayer.app"
 }
 
 # Legacy support
