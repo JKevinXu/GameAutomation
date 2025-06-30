@@ -1,0 +1,14 @@
+# LaunchAgent files (created outside repo)
+~/Library/LaunchAgents/com.user.shimen.task.plist
+
+# Log files
+*.log
+launchd_*.log
+shimen_task.log
+
+# Debug output
+debug/
+test_*.png
+
+# Python cache
+__pycache__/
