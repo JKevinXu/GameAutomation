@@ -1,18 +1,27 @@
 # Game Automation Project
 
-Automated gameplay tools for Chinese mobile games using Python, OpenCV, and AI-powered text analysis.
+Automated gameplay tools for Chinese mobile games using Python, OpenCV, and AI-powered text analysis with macOS LaunchAgent scheduling.
 
-## Features
+## 🎯 Overview
+
+This project automates the **师门任务 (Shimen Task)** in mobile games running on MuMu emulator. The automation includes:
+- **Daily scheduling** using macOS LaunchAgent
+- **Template-based UI detection** for reliable clicking
+- **Screen capture with permission handling**
+- **Multi-step automation workflows**
+
+## 🚀 Features
 
 ### Core Automation
-- **Action-based automation**: Configurable action plans with clicks, waits, and app launching
-- **Template-based clicking**: PNG template matching for reliable UI element detection
-- **Emulator integration**: Seamless MuMu emulator control and interaction
+- **LaunchAgent scheduling**: Native macOS daily task automation
+- **Template matching**: PNG-based UI element detection using OpenCV
+- **Emulator integration**: Seamless MuMu emulator control
+- **Permission handling**: Proper screen recording and accessibility permissions
 
 ### Avatar Detection & Keyword Analysis
-- **Avatar template matching**: Detect specific player avatars in chat using OpenCV
-- **AI-powered text extraction**: GPT-4o vision model for accurate Chinese text recognition
-- **Intelligent keyword detection**: Context-aware keyword analysis with confidence scoring
+- **Avatar template matching**: Detect specific player avatars in chat
+- **AI-powered text extraction**: GPT-4o vision model for Chinese text recognition
+- **Intelligent keyword detection**: Context-aware keyword analysis
 - **Automated avatar clicking**: Click avatars based on message content
 
 ### Smart Coordinate Handling
@@ -20,212 +29,317 @@ Automated gameplay tools for Chinese mobile games using Python, OpenCV, and AI-p
 - **Multiple click strategies**: Center, edge, and custom positioning options
 - **Visual debugging**: Debug images with bounding boxes and confidence scores
 
-## Installation
+## 📋 How the Process Works
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd game_automation_project
-   ```
+### 1. **LaunchAgent Scheduling (macOS Native)**
 
-2. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+The automation uses macOS LaunchAgent instead of cron for better permission handling:
 
-3. **Set up OpenAI API key** (for text extraction)
-   ```bash
-   export OPENAI_API_KEY="your-api-key-here"
-   ```
-
-4. **Add avatar templates**
-   - Place avatar images in `game_elements/avatar/`
-   - Supported formats: PNG, JPG, JPEG
-
-## Usage
-
-### Basic Avatar Keyword Detection
-
-Find avatar coordinates for specific keywords:
-```bash
-# Find avatar for "320" recruitment messages
-python action_automation.py --find-keyword 320
-
-# Find avatar for game activities
-python action_automation.py --find-keyword 章鱼王
+**LaunchAgent File:** `~/Library/LaunchAgents/com.user.shimen.task.plist`
+```xml
+<key>StartCalendarInterval</key>
+<dict>
+    <key>Hour</key>
+    <integer>17</integer>
+    <key>Minute</key>
+    <integer>32</integer>
+</dict>
 ```
 
-### Action Plans with Keyword Detection
+**Why LaunchAgent > Cron:**
+- ✅ **User context**: Runs with proper GUI permissions
+- ✅ **Screen recording**: Inherits user's screen recording permissions
+- ✅ **Native macOS**: Better integration with system security
+- ✅ **Reliable**: No permission denied errors
 
-Run predefined action plans:
+### 2. **Automation Workflow (师门任务)**
+
+```mermaid
+graph TD
+    A[LaunchAgent Triggers] --> B[Open MuMu Emulator]
+    B --> C[Wait for Interface]
+    C --> D[Template Match: Play Button]
+    D --> E[Click Play Button]
+    E --> F[Wait for Boot]
+    F --> G[Template Match: Start Game]
+    G --> H[Click Start Game]
+    H --> I[Wait for Game Load]
+    I --> J[Template Match: Login]
+    J --> K[Click Login]
+    K --> L[Template Match: 师门任务]
+    L --> M[Click 师门任务]
+    M --> N[Template Match: Go Finish]
+    N --> O[Click Go Finish]
+    O --> P[Complete ✅]
+```
+
+### 3. **Template Matching Process**
+
+1. **Screen Capture**: Take screenshot with proper permissions
+2. **Scaling Detection**: Handle Retina display (2x scaling)
+3. **Template Matching**: Use OpenCV to find UI elements
+4. **Confidence Check**: Ensure match confidence > threshold
+5. **Coordinate Calculation**: Convert to logical coordinates for clicking
+
+### 4. **Permission Architecture**
+
+**Required macOS Permissions:**
+- 🔐 **Screen Recording**: For taking screenshots
+- 🔐 **Accessibility**: For controlling other applications
+- 🔐 **Full Disk Access**: For comprehensive system access
+
+**Permission Context:**
+```
+User Login Session
+├── LaunchAgent (inherits user permissions)
+├── Terminal.app (granted screen recording)
+├── Python script (runs in user context)
+└── PyAutoGUI (works with proper permissions)
+```
+
+## 🔧 Installation & Setup
+
+### 1. **Clone and Install Dependencies**
 ```bash
-# Search for multiple keywords and click matching avatar
-python action_automation.py auto_keyword_click
+git clone <repository-url>
+cd game_automation_project
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
 
-# Specifically find 320 recruitment messages
-python action_automation.py find_320_player
+### 2. **Grant macOS Permissions**
 
-# Original action plans still work
+**System Settings → Privacy & Security:**
+
+1. **Screen Recording**:
+   - Add `Terminal.app`
+   - Check the checkbox ✅
+
+2. **Accessibility**:
+   - Add `Terminal.app`
+   - Check the checkbox ✅
+
+3. **Full Disk Access**:
+   - Add `Terminal.app`
+   - Check the checkbox ✅
+
+**⚠️ Important: Restart Terminal after granting permissions!**
+
+### 3. **Set Up LaunchAgent**
+
+The LaunchAgent is automatically created at:
+`~/Library/LaunchAgents/com.user.shimen.task.plist`
+
+**Load the LaunchAgent:**
+```bash
+launchctl load ~/Library/LaunchAgents/com.user.shimen.task.plist
+```
+
+**Verify it's running:**
+```bash
+launchctl list | grep shimen
+```
+
+### 4. **Configure Schedule**
+
+Edit the plist file to change timing:
+```xml
+<key>StartCalendarInterval</key>
+<dict>
+    <key>Hour</key>
+    <integer>9</integer>    <!-- 9 AM -->
+    <key>Minute</key>
+    <integer>30</integer>   <!-- 30 minutes -->
+</dict>
+```
+
+**Reload after changes:**
+```bash
+launchctl unload ~/Library/LaunchAgents/com.user.shimen.task.plist
+launchctl load ~/Library/LaunchAgents/com.user.shimen.task.plist
+```
+
+## 📊 Monitoring & Logs
+
+### **Log Files**
+- `shimen_task.log`: Main automation execution log
+- `launchd_output.log`: LaunchAgent stdout
+- `launchd_error.log`: LaunchAgent stderr
+
+### **Real-time Monitoring**
+```bash
+# Watch automation logs
+tail -f shimen_task.log
+
+# Watch LaunchAgent logs
+tail -f launchd_output.log
+```
+
+### **Debug Template Matching**
+Debug images saved to: `debug/avatar_template/`
+- Screenshots with detection overlays
+- Confidence scores and bounding boxes
+- Template matching results
+
+## 🔧 Configuration
+
+### **Action Plans** (config.py)
+```python
+ACTION_PLANS = {
+    '师门任务': [
+        {'action': 'open_app', 'app': 'mumu'},
+        {'action': 'click', 'coordinate': 'play_button'},
+        {'action': 'wait', 'duration': 10},
+        # ... more steps
+    ]
+}
+```
+
+### **Template Coordinates**
+```python
+COORDINATES = {
+    'play_button': 'game_elements/play_button.png',
+    'start_game': 'game_elements/start_game.png',
+    'login_button': 'game_elements/login_button.png',
+    # ... more templates
+}
+```
+
+## 🚨 Troubleshooting
+
+### **Common Issues**
+
+**1. Permission Denied Errors**
+```
+❌ Error: [Errno 2] No such file or directory: 'screencapture'
+```
+**Solution:** Grant Screen Recording permission to Terminal.app and restart Terminal
+
+**2. Template Not Found**
+```
+❌ Icon not found. Best confidence: 0.434 (threshold: 0.800)
+```
+**Solutions:**
+- Lower confidence threshold in config
+- Update template image
+- Check if UI changed
+
+**3. LaunchAgent Not Running**
+```bash
+# Check if loaded
+launchctl list | grep shimen
+
+# Reload if needed
+launchctl unload ~/Library/LaunchAgents/com.user.shimen.task.plist
+launchctl load ~/Library/LaunchAgents/com.user.shimen.task.plist
+```
+
+### **Permission Verification**
+```bash
+# Test screenshot capability
+screencapture test.png && echo "✅ Permissions working" || echo "❌ Permission denied"
+
+# Test automation manually
+./run_shimen_task.sh
+```
+
+### **Debug Mode**
+```bash
+# Run with verbose output
+python action_automation.py 师门任务 --verbose
+
+# Check template matching
+python avatar_message_block_detection.py --all-templates
+```
+
+## 📅 Schedule Management
+
+### **Change Daily Schedule**
+```bash
+# Edit the plist file
+nano ~/Library/LaunchAgents/com.user.shimen.task.plist
+
+# Reload LaunchAgent
+launchctl unload ~/Library/LaunchAgents/com.user.shimen.task.plist
+launchctl load ~/Library/LaunchAgents/com.user.shimen.task.plist
+```
+
+### **Disable Automation**
+```bash
+# Unload LaunchAgent
+launchctl unload ~/Library/LaunchAgents/com.user.shimen.task.plist
+```
+
+### **Enable Automation**
+```bash
+# Load LaunchAgent
+launchctl load ~/Library/LaunchAgents/com.user.shimen.task.plist
+```
+
+## 🔄 Alternative Approaches
+
+### **Direct Coordinates (Fallback)**
+If template matching fails, use `config_no_templates.py`:
+- Uses hardcoded coordinates instead of templates
+- Bypasses screen recording requirements
+- Less reliable but permission-free
+
+### **Manual Execution**
+```bash
+# Run automation manually
+./run_shimen_task.sh
+
+# Run specific action plan
 python action_automation.py 师门任务
 ```
 
-### Programmatic Usage
-
-```python
-from action_automation import ActionAutomation
-
-automation = ActionAutomation()
-
-# Find coordinates without clicking
-result = automation.find_avatar_coordinates_for_keyword("320")
-if result:
-    print(f"Click at: ({result['x']}, {result['y']})")
-    print(f"Confidence: {result['keyword_info']['confidence']}%")
-
-# Use in action plans
-action = {
-    'action': 'avatar_keyword_click',
-    'keywords': ['320', '章鱼王'],
-    'confidence': 0.8,
-    'description': 'Find and click avatar for keywords'
-}
-automation.execute_action(action)
-```
-
-### Configuration
-
-Add custom action plans in `config.py`:
-```python
-ACTION_PLANS = {
-    'my_custom_plan': [
-        {
-            'action': 'avatar_keyword_click',
-            'keywords': ['师门', '任务'],
-            'confidence': 0.8,
-            'description': 'Click avatar for task-related messages'
-        },
-    ],
-}
-```
-
-## Action Types
-
-### Standard Actions
-- **click**: Click at named coordinates or PNG templates
-- **wait**: Pause execution for specified duration
-- **open_app**: Launch applications (MuMu emulator, etc.)
-
-### Avatar Keyword Actions
-- **avatar_keyword_click**: Find and click avatars based on message keywords
-
-#### Avatar Keyword Click Parameters
-- `keywords`: String or list of keywords to search for
-- `avatar_templates`: List of template paths (optional, uses all if not specified)
-- `confidence`: Avatar detection confidence (0.0-1.0, default 0.8)
-- `return_coordinates`: Return coordinates instead of clicking (optional)
-
-## File Structure
+## 📁 Project Structure
 
 ```
 game_automation_project/
-├── action_automation.py          # Main automation system
-├── avatar_message_block_detection.py  # Avatar template matching
-├── message_text_extractor.py     # AI-powered text extraction
-├── config.py                     # Action plans and coordinates
-├── demo_avatar_keyword_click.py  # Usage examples
-├── game_elements/
-│   ├── avatar/                   # Avatar template images
-│   └── *.png                     # UI element templates
-└── debug/                        # Debug output and visualizations
+├── action_automation.py              # Main automation engine
+├── avatar_message_block_detection.py # Avatar template matching
+├── config.py                         # Action plans and coordinates
+├── run_shimen_task.sh               # LaunchAgent execution script
+├── config_no_templates.py           # Direct coordinate fallback
+├── game_elements/                   # UI template images
+│   ├── avatar/                      # Avatar templates
+│   └── *.png                        # Button templates
+├── debug/                           # Debug output
+└── ~/Library/LaunchAgents/          # LaunchAgent plist (system location)
+    └── com.user.shimen.task.plist
 ```
 
-## How It Works
+## 🎯 Success Criteria
 
-### Avatar Detection Pipeline
-1. **Screenshot Capture**: Captures chat region with retina scaling
-2. **Template Matching**: Uses OpenCV to find avatars with high confidence
-3. **Text Area Analysis**: Analyzes message blocks to the right of avatars
-4. **Keyword Detection**: Uses GPT-4o vision to check for relevant keywords
-5. **Coordinate Calculation**: Returns precise click coordinates
-
-### Intelligent Keyword Analysis
-The system uses AI to understand context, not just exact matches:
-- **Direct keywords**: "320", "章鱼王", "师门"
-- **Related concepts**: "挑战章鱼王" → detected for "任务" keyword
-- **Game terminology**: Understands abbreviations and slang
-- **Confidence scoring**: 70%+ required for action execution
-
-### Coordinate System
-- **Logical coordinates**: Standard screen coordinates (e.g., 640×1136)
-- **Physical coordinates**: Retina display coordinates (2× scaling)
-- **Automatic conversion**: Seamless handling between systems
-
-## Debugging
-
-### Visual Debug Output
-- Screenshot with detection overlays saved to `debug/avatar_template/`
-- Bounding boxes for avatars (red), text areas (green), message blocks (blue)
-- Confidence scores and click points marked
-
-### Verbose Mode
-```bash
-python action_automation.py --verbose auto_keyword_click
+**Automation is working properly when you see:**
+```
+✅ Step 1/10: Open MuMu emulator
+✅ Step 2/10: Click emulator play button  
+✅ Step 3/10: Wait for emulator to boot
+✅ Step 4/10: Click game start button
+... (continues through all 10 steps)
+✅ 师门任务 automation completed successfully
 ```
 
-### Demo Script
-```bash
-python demo_avatar_keyword_click.py
-```
+## 📞 Support
 
-## Examples
+**Log Analysis:**
+1. Check `shimen_task.log` for automation steps
+2. Check `launchd_error.log` for LaunchAgent issues
+3. Check `debug/` folder for template matching images
 
-### Find 320 Level Players
-```python
-automation = ActionAutomation()
-result = automation.find_avatar_coordinates_for_keyword("320")
-# Finds: "320来人", "65-69级进组", recruitment messages
-```
+**Common Success Indicators:**
+- LaunchAgent loads without errors
+- Screenshots work in Terminal
+- Template matching finds UI elements
+- All 10 automation steps complete
 
-### Multi-Keyword Search
-```python
-keywords = ["章鱼王", "师门", "任务"]
-result = automation.find_avatar_coordinates_for_keyword(keywords)
-# Finds any avatar discussing these activities
-```
+**Key Files:**
+- **LaunchAgent**: `~/Library/LaunchAgents/com.user.shimen.task.plist`
+- **Main Script**: `run_shimen_task.sh`
+- **Logs**: `shimen_task.log`, `launchd_*.log`
+- **Config**: `config.py`
 
-### Game Activity Detection
-```python
-action = {
-    'action': 'avatar_keyword_click',
-    'keywords': ['章鱼王', '副本', '组队'],
-    'description': 'Join group activities'
-}
-```
-
-## Requirements
-
-- Python 3.7+
-- OpenCV (cv2)
-- PyAutoGUI
-- OpenAI API access
-- macOS (for MuMu emulator integration)
-
-## API Configuration
-
-Set your OpenAI API key:
-```bash
-# In terminal
-export OPENAI_API_KEY="sk-your-key-here"
-
-# Or in Python
-import os
-os.environ['OPENAI_API_KEY'] = 'sk-your-key-here'
-```
-
-## Tips
-
-1. **Avatar Templates**: Use clear, cropped avatar images for best detection
-2. **Keyword Selection**: Choose distinctive keywords that appear in target messages
-3. **Confidence Tuning**: Lower confidence (0.6-0.7) for broader matching
-4. **Debug Mode**: Use `--verbose` flag to see detailed detection process
-5. **Multiple Keywords**: Use lists for flexible matching: `['320', '组队', '副本']` 
+This automation system provides reliable, scheduled execution of mobile game tasks using native macOS scheduling and proper permission handling. 
