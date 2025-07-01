@@ -256,26 +256,218 @@ python avatar_message_block_detection.py --all-templates
 ## 📅 Schedule Management
 
 ### **Change Daily Schedule**
+
+#### **Method 1: Standard Update**
 ```bash
-# Edit the plist file
-nano ~/Library/LaunchAgents/com.user.shimen.task.plist
+# Edit the plist file to change time
+nano ~/Library/LaunchAgents/com.user.shimen.automation.plist
+
+# Change these lines:
+# <key>Hour</key>
+# <integer>12</integer>    <!-- Change hour -->
+# <key>Minute</key>
+# <integer>30</integer>    <!-- Change minute -->
 
 # Reload LaunchAgent
-launchctl unload ~/Library/LaunchAgents/com.user.shimen.task.plist
-launchctl load ~/Library/LaunchAgents/com.user.shimen.task.plist
+launchctl unload ~/Library/LaunchAgents/com.user.shimen.automation.plist
+launchctl load ~/Library/LaunchAgents/com.user.shimen.automation.plist
+```
+
+#### **Method 2: Quick Command Update**
+```bash
+# Update to run at 9:30 AM using search/replace
+sed -i '' 's/<integer>12<\/integer>/<integer>9<\/integer>/g' ~/Library/LaunchAgents/com.user.shimen.automation.plist
+sed -i '' 's/<integer>30<\/integer>/<integer>30<\/integer>/g' ~/Library/LaunchAgents/com.user.shimen.automation.plist
+
+# Reload
+launchctl unload ~/Library/LaunchAgents/com.user.shimen.automation.plist
+launchctl load ~/Library/LaunchAgents/com.user.shimen.automation.plist
+```
+
+### **Verify Schedule Changes**
+```bash
+# Check if LaunchAgent is loaded
+launchctl list | grep shimen
+
+# Verify the actual schedule (should show new time)
+launchctl print gui/$(id -u)/com.user.shimen.automation | grep -A 5 "descriptor"
+
+# Should output:
+# descriptor = {
+#     "Minute" => 30
+#     "Hour" => 9
+# }
+```
+
+### **🚨 Schedule Update Troubleshooting**
+
+#### **Issue: Changes Not Taking Effect**
+
+**Problem**: LaunchAgent shows old schedule even after reload
+```bash
+# Symptom: This shows wrong time
+launchctl print gui/$(id -u)/com.user.shimen.automation | grep -A 5 "descriptor"
+```
+
+**Solution 1: Force Complete Reload**
+```bash
+# Complete unload
+launchctl bootout gui/$(id -u)/com.user.shimen.automation
+launchctl remove com.user.shimen.automation
+
+# Wait and reload
+sleep 3
+launchctl load ~/Library/LaunchAgents/com.user.shimen.automation.plist
+
+# Verify
+launchctl print gui/$(id -u)/com.user.shimen.automation | grep -A 5 "descriptor"
+```
+
+**Solution 2: Create New LaunchAgent (Nuclear Option)**
+```bash
+# If caching persists, create new LaunchAgent with different name
+rm ~/Library/LaunchAgents/com.user.shimen.automation.plist
+
+# Create new one with timestamp in name
+cat > ~/Library/LaunchAgents/com.user.shimen.$(date +%H%M).plist << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.user.shimen.$(date +%H%M)</string>
+    
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/kx/game_automation_project/run_shimen_task.sh</string>
+    </array>
+    
+    <key>WorkingDirectory</key>
+    <string>/Users/kx/game_automation_project</string>
+    
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>14</integer>
+        <key>Minute</key>
+        <integer>30</integer>
+    </dict>
+    
+    <key>StandardOutPath</key>
+    <string>/Users/kx/game_automation_project/launchd_output.log</string>
+    
+    <key>StandardErrorPath</key>
+    <string>/Users/kx/game_automation_project/launchd_error.log</string>
+    
+    <key>RunAtLoad</key>
+    <false/>
+    
+    <key>KeepAlive</key>
+    <false/>
+    
+</dict>
+</plist>
+EOF
+
+# Load new LaunchAgent
+launchctl load ~/Library/LaunchAgents/com.user.shimen.$(date +%H%M).plist
+```
+
+### **Common Schedule Examples**
+
+```xml
+<!-- Daily at 9:00 AM -->
+<key>StartCalendarInterval</key>
+<dict>
+    <key>Hour</key>
+    <integer>9</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+</dict>
+
+<!-- Daily at 2:30 PM -->
+<key>StartCalendarInterval</key>
+<dict>
+    <key>Hour</key>
+    <integer>14</integer>
+    <key>Minute</key>
+    <integer>30</integer>
+</dict>
+
+<!-- Daily at 11:45 PM -->
+<key>StartCalendarInterval</key>
+<dict>
+    <key>Hour</key>
+    <integer>23</integer>
+    <key>Minute</key>
+    <integer>45</integer>
+</dict>
+```
+
+### **Testing Schedule Changes**
+
+```bash
+# Set to run in 2 minutes for testing
+CURRENT_MINUTE=$(date +%M)
+TEST_MINUTE=$((CURRENT_MINUTE + 2))
+
+# Update to test time
+sed -i '' "s/<integer>[0-9]*<\/integer>/<integer>$TEST_MINUTE<\/integer>/g" ~/Library/LaunchAgents/com.user.shimen.automation.plist
+
+# Reload and verify
+launchctl unload ~/Library/LaunchAgents/com.user.shimen.automation.plist
+launchctl load ~/Library/LaunchAgents/com.user.shimen.automation.plist
+
+# Watch logs
+tail -f shimen_task.log
 ```
 
 ### **Disable Automation**
 ```bash
 # Unload LaunchAgent
-launchctl unload ~/Library/LaunchAgents/com.user.shimen.task.plist
+launchctl unload ~/Library/LaunchAgents/com.user.shimen.automation.plist
+
+# Or remove completely
+launchctl bootout gui/$(id -u)/com.user.shimen.automation
 ```
 
 ### **Enable Automation**
 ```bash
 # Load LaunchAgent
-launchctl load ~/Library/LaunchAgents/com.user.shimen.task.plist
+launchctl load ~/Library/LaunchAgents/com.user.shimen.automation.plist
+
+# Verify it's running
+launchctl list | grep shimen
 ```
+
+### **Schedule Verification Checklist**
+
+✅ **Step 1**: Check plist file content
+```bash
+cat ~/Library/LaunchAgents/com.user.shimen.automation.plist | grep -A 6 "StartCalendarInterval"
+```
+
+✅ **Step 2**: Verify LaunchAgent is loaded
+```bash
+launchctl list | grep shimen
+```
+
+✅ **Step 3**: Check actual loaded schedule
+```bash
+launchctl print gui/$(id -u)/com.user.shimen.automation | grep -A 5 "descriptor"
+```
+
+✅ **Step 4**: Confirm next run time matches expectation
+```bash
+date && echo "Next run scheduled for: [YOUR_TIME]"
+```
+
+**🔧 Pro Tips:**
+- Always verify the schedule after changes using `launchctl print`
+- Use 24-hour format (14 = 2 PM, 23 = 11 PM)
+- Test with a time 2-3 minutes in the future first
+- If caching issues persist, create a new LaunchAgent with a different label name
+- Keep the old plist file as backup until new schedule is confirmed working
 
 ## 🔄 Alternative Approaches
 
