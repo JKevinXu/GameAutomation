@@ -53,7 +53,7 @@ graph TD
 ### Core Components
 
 #### 1. MCP Server (`server.py`)
-- **Simple FastMCP server** with one tool registration
+- **Simple FastMCP server** (from official `mcp` SDK) with one tool registration
 - **Direct shell script execution** using existing `run_shimen_task.sh`
 - **Basic error handling and logging**
 
@@ -92,12 +92,16 @@ interface RunShimenTaskResult {
 
 1. **Create MCP Server Structure**
    - Create `mcp_game_automation_server/server.py`
-   - Install FastMCP dependency: `pip install fastmcp`
+   - Install MCP dependency: `pip install "mcp[cli]"`
    - Register one tool: `run_shimen_task`
 
 2. **Implement Simple Tool**
    ```python
-   @server.tool()
+   from mcp.server.fastmcp import FastMCP
+   
+   mcp = FastMCP("Shimen Task Automation")
+   
+   @mcp.tool()
    def run_shimen_task(verbose: bool = False) -> dict:
        """Execute the 师门任务 automation sequence"""
        # Call existing run_shimen_task.sh script
@@ -113,7 +117,7 @@ interface RunShimenTaskResult {
 ```
 mcp_game_automation_server/
 ├── server.py              # Single MCP server file
-└── requirements.txt       # Just fastmcp dependency
+└── requirements.txt       # Just mcp[cli] dependency
 
 # Existing files remain unchanged:
 ├── run_shimen_task.sh     # Keep as-is
