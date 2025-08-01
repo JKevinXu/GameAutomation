@@ -1,0 +1,5 @@
+# MCP Server Dependencies
+mcp[cli]>=1.12.0
+
+# Optional: For better error handling and logging
+typing-extensions>=4.0.0 
